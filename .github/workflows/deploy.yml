@@ -16,12 +16,12 @@ concurrency:
 
 jobs:
   build:
-    if: github.repository == 'atharvaajmera/atharva.github.io'
+    if: github.repository == 'atharvaajmera/atharvaajmera.github.io'
     runs-on: ubuntu-latest
     env:
       GITHUB_PAGES: "true"
-      NEXT_PUBLIC_BASE_PATH: "/atharva.github.io"
-      NEXT_PUBLIC_SITE_URL: "https://atharvaajmera.github.io/atharva.github.io"
+      NEXT_PUBLIC_BASE_PATH: ""
+      NEXT_PUBLIC_SITE_URL: "https://atharvaajmera.github.io"
       NEXT_PUBLIC_CONTACT_API_URL: "https://atharva-portfolio-liart.vercel.app/api/contact"
     steps:
       - name: Checkout

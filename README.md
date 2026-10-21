@@ -4,7 +4,7 @@ Personal portfolio built with Next.js, Tailwind CSS, and Framer Motion.
 
 ## Live site
 
-- GitHub Pages: https://atharvaajmera.github.io/atharva.github.io/
+- GitHub Pages: https://atharvaajmera.github.io/
 - Contact API (Vercel): https://atharva-portfolio-liart.vercel.app/api/contact
 
 ## Local development
@@ -30,8 +30,8 @@ Vercel; CORS is restricted to the portfolio's origins in
 
 ```bash
 GITHUB_PAGES=true \
-NEXT_PUBLIC_BASE_PATH=/atharva.github.io \
-NEXT_PUBLIC_SITE_URL=https://atharvaajmera.github.io/atharva.github.io \
+NEXT_PUBLIC_BASE_PATH= \
+NEXT_PUBLIC_SITE_URL=https://atharvaajmera.github.io \
 NEXT_PUBLIC_CONTACT_API_URL=https://atharva-portfolio-liart.vercel.app/api/contact \
 npm run build
 ```
