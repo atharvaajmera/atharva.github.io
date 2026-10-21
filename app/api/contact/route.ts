@@ -67,6 +67,10 @@ const ALLOWED_ORIGINS = new Set([
   "https://atharvaajmera.github.io",
   "https://atharva.github.io",
   "https://atharva-portfolio-liart.vercel.app",
+  "https://plenumonline.me",
+  "https://www.plenumonline.me",
+  "http://plenumonline.me",
+  "http://www.plenumonline.me",
   "http://localhost:3000",
 ]);
 
