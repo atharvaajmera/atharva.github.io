@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Atharva Ajmera — Portfolio
 
-## Getting Started
+Personal portfolio built with Next.js, Tailwind CSS, and Framer Motion.
 
-First, run the development server:
+## Live site
+
+- GitHub Pages: https://atharvaajmera.github.io/atharva.github.io/
+- Contact API (Vercel): https://atharva-portfolio-liart.vercel.app/api/contact
+
+## Local development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deployment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The site is automatically deployed to GitHub Pages by the workflow in
+`.github/workflows/deploy.yml` on every push to `main`.
 
-## Learn More
+GitHub Pages only serves static files, so the build uses Next.js
+`output: "export"`. The contact form still uses the API route running on
+Vercel; CORS is restricted to the portfolio's origins in
+`app/api/contact/route.ts`.
 
-To learn more about Next.js, take a look at the following resources:
+### Build the static export locally
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+GITHUB_PAGES=true \
+NEXT_PUBLIC_BASE_PATH=/atharva.github.io \
+NEXT_PUBLIC_SITE_URL=https://atharvaajmera.github.io/atharva.github.io \
+NEXT_PUBLIC_CONTACT_API_URL=https://atharva-portfolio-liart.vercel.app/api/contact \
+npm run build
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The generated site is written to `out/`.
 
-## Deploy on Vercel
+### Changing the deployment URL
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The site URL is configured through environment variables in the workflow:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `NEXT_PUBLIC_BASE_PATH` — URL path prefix (for example `/portfolio`), or empty
+  for a user site such as `https://atharvaajmera.github.io`.
+- `NEXT_PUBLIC_SITE_URL` — canonical URL used by metadata, `sitemap.xml`, and
+  `robots.txt`.
+- `NEXT_PUBLIC_CONTACT_API_URL` — absolute URL of the contact API.

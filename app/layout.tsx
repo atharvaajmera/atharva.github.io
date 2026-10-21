@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import type { Metadata, Viewport } from "next";
+import { siteUrl } from "@/lib/site";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -15,8 +16,12 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Atharva Ajmera - Full Stack Developer & Tech Enthusiast at IIT Jodhpur",
   description: "Full-stack developer skilled in modern web technologies, GenAI, and building scalable applications. Explore my projects and get in touch.",
+  alternates: {
+    canonical: siteUrl,
+  },
   keywords: [
     "Full Stack Developer",
     "Web Developer",
@@ -34,7 +39,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://atharva-portfolio.com",
+    url: siteUrl,
     title: "Atharva - Full Stack Developer & Tech Enthusiast",
     description: "Full-stack developer skilled in modern web technologies, GenAI, and building scalable applications.",
     siteName: "Atharva's Portfolio",
@@ -55,9 +60,6 @@ export const metadata: Metadata = {
       "max-image-preview": "large",
       "max-snippet": -1,
     },
-  },
-  verification: {
-    google: "your-google-site-verification-code",
   },
 };
 

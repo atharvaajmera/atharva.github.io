@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { CheckCircle2 } from "lucide-react";
+import { contactApiUrl } from "@/lib/site";
 
 export default function Mailer() {
     const [email, setEmail] = useState("");
@@ -41,7 +42,7 @@ export default function Mailer() {
         setIsLoading(true);
 
         try {
-            const res = await fetch("/api/contact", {
+            const res = await fetch(contactApiUrl, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, name, message, honeypot }),
@@ -62,7 +63,7 @@ export default function Mailer() {
             }
         } catch (err) {
             console.error(err);
-            alert("Something went wrong.");
+            alert("Something went wrong. Please email atharvaajmera06@gmail.com directly.");
         } finally {
             setIsLoading(false);
         }

@@ -2,6 +2,7 @@ import React from "react";
 import { BentoGrid, BentoGridItem } from "@/components/ui/bento-grid";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { assetPath } from "@/lib/site";
 
 const Skeleton = ({ logo }: { logo?: React.ReactNode }) => (
   <div className="relative flex flex-1 w-full h-full min-h-[10rem] max-h-[10rem] rounded-xl bg-gradient-to-br from-[#1a1a1a] to-[#111111] border border-white/5 overflow-hidden">
@@ -14,7 +15,7 @@ const items = [
     title: "TestiFy",
     description:
       "AI-powered test paper generator that creates structured question papers and solution PDFs from LaTeX generated via Gemini API. Features interactive quiz mode for practice and self-assessment.",
-    header: <Skeleton logo={<Image src="/testify-logo.jpeg" alt="TestiFy" fill className="object-cover" />} />,
+    header: <Skeleton logo={<Image src={assetPath("/testify-logo.jpeg")} alt="TestiFy" fill className="object-cover" />} />,
     className: "md:col-span-1",
     githubLink: "https://github.com/atharvaajmera/TestiFy",
     demoLink: "https://testi-fy.vercel.app/",
@@ -31,7 +32,7 @@ const items = [
     title: "HealthConnect",
     description:
       "Cross-platform healthcare app with Supabase authentication and real-time location tracking. Manages ambulance tracking with persistent data synchronization and future driver assignment using combinatorial optimization algorithms.",
-    header: <Skeleton logo={<Image src="/healthconnect-logo.jpeg" alt="HealthConnect" fill className="object-cover" />} />,
+    header: <Skeleton logo={<Image src={assetPath("/healthconnect-logo.jpeg")} alt="HealthConnect" fill className="object-cover" />} />,
     className: "md:col-span-1",
     githubLink: "https://github.com/atharvaajmera/healthcare",
   },
@@ -39,7 +40,7 @@ const items = [
     title: "Route Finder",
     description:
       "High-performance C++ system solving student-to-centre allotment using OpenStreetMap data. Leverages Graphs, KD-Trees, and Priority Queues for capacity-aware optimal assignments based on travel time.",
-    header: <Skeleton logo={<Image src="/route-finder-logo.png" alt="Route Finder" fill className="object-cover" />} />,
+    header: <Skeleton logo={<Image src={assetPath("/route-finder-logo.png")} alt="Route Finder" fill className="object-cover" />} />,
     className: "md:col-span-1",
     githubLink: "https://github.com/atharvaajmera/route-finder",
   },

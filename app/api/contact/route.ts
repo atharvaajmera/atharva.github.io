@@ -4,54 +4,134 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 import { validate as validateEmail } from "email-validator";
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const RATE_LIMIT_MAX = 3;
 
-const rateLimiter = new Ratelimit({
-  redis: redis,
-  limiter: Ratelimit.slidingWindow(3, "1 h"),
-  analytics: true,
-  prefix: "@upstash/ratelimit/contact",
-});
+let rateLimiter: Ratelimit | undefined;
+let upstashUnavailable = false;
+const memoryRateLimits = new Map<string, { count: number; resetAt: number }>();
+
+function getRateLimiter() {
+  if (!rateLimiter) {
+    const redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL!,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    });
+
+    rateLimiter = new Ratelimit({
+      redis: redis,
+      limiter: Ratelimit.slidingWindow(RATE_LIMIT_MAX, "1 h"),
+      analytics: true,
+      prefix: "@upstash/ratelimit/contact",
+    });
+  }
+
+  return rateLimiter;
+}
+
+function memoryRateLimit(ip: string) {
+  const now = Date.now();
+  const entry = memoryRateLimits.get(ip);
+
+  if (!entry || entry.resetAt <= now) {
+    memoryRateLimits.set(ip, {
+      count: 1,
+      resetAt: now + RATE_LIMIT_WINDOW_MS,
+    });
+    return true;
+  }
+
+  entry.count += 1;
+  return entry.count <= RATE_LIMIT_MAX;
+}
+
+async function checkRateLimit(ip: string) {
+  if (!upstashUnavailable) {
+    try {
+      const { success } = await getRateLimiter().limit(ip);
+      return success;
+    } catch (error) {
+      // A dead/unconfigured Redis instance must not take down the contact form.
+      upstashUnavailable = true;
+      console.error(
+        "Upstash rate limiter unavailable; using in-memory fallback.",
+        error,
+      );
+    }
+  }
+
+  return memoryRateLimit(ip);
+}
+
+const ALLOWED_ORIGINS = new Set([
+  "https://atharvaajmera.github.io",
+  "https://atharva.github.io",
+  "https://atharva-portfolio-liart.vercel.app",
+  "http://localhost:3000",
+]);
+
+function corsHeaders(origin: string | null) {
+  const allowedOrigin =
+    origin && ALLOWED_ORIGINS.has(origin)
+      ? origin
+      : "https://atharvaajmera.github.io";
+
+  return {
+    "Access-Control-Allow-Origin": allowedOrigin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Max-Age": "86400",
+    Vary: "Origin",
+  };
+}
+
+function json(body: unknown, status: number, origin: string | null) {
+  return NextResponse.json(body, { status, headers: corsHeaders(origin) });
+}
+
+export async function OPTIONS(request: Request) {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders(request.headers.get("origin")),
+  });
+}
 
 export async function POST(request: Request) {
+  const origin = request.headers.get("origin");
   const ip = request.headers.get("x-forwarded-for") ?? "127.0.0.1";
 
-  const { success } = await rateLimiter.limit(ip);
+  const allowed = await checkRateLimit(ip);
 
-  if (!success) {
-    return NextResponse.json(
+  if (!allowed) {
+    return json(
       {
         error: "Too many messages! Please wait a while before sending another.",
       },
-      { status: 429 },
+      429,
+      origin,
     );
   }
 
-  const { email, name, message, honeypot } = await request.json();
+  let payload;
+  try {
+    payload = await request.json();
+  } catch {
+    return json({ message: "Invalid request body" }, 400, origin);
+  }
+
+  const { email, name, message, honeypot } = payload ?? {};
 
   if (honeypot) {
-    return NextResponse.json(
-      { message: "Freezed for bot behaviour." },
-      { status: 400 },
-    );
+    return json({ message: "Freezed for bot behaviour." }, 400, origin);
   }
 
   if (!email || !name || !message) {
-    return NextResponse.json(
-      { message: "All fields are required" },
-      { status: 400 },
-    );
+    return json({ message: "All fields are required" }, 400, origin);
   }
 
   // Email validation using email-validator library
   if (!validateEmail(email)) {
-    return NextResponse.json(
-      { message: "Invalid email address format" },
-      { status: 400 },
-    );
+    return json({ message: "Invalid email address format" }, 400, origin);
   }
 
   try {
@@ -117,15 +197,9 @@ export async function POST(request: Request) {
       transporter.sendMail(adminMailOptions),
     ]);
 
-    return NextResponse.json(
-      { message: "Email sent successfully!" },
-      { status: 200 },
-    );
+    return json({ message: "Email sent successfully!" }, 200, origin);
   } catch (error) {
     console.error("Email error:", error);
-    return NextResponse.json(
-      { message: "Failed to send email" },
-      { status: 500 },
-    );
+    return json({ message: "Failed to send email" }, 500, origin);
   }
 }
